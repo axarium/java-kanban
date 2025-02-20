@@ -14,7 +14,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        String result = "Task{id=" + getId() + ", title='" + getTitle() + "', ";
+        String result = "Subtask{id=" + getId() + ", title='" + getTitle() + "', ";
 
         if (getDescription() != null) {
             result += "description.length=" + getDescription().length();
@@ -22,6 +22,6 @@ public class Subtask extends Task {
             result += "description=null";
         }
 
-        return (result + ",  status=" + getStatus() + ", epicId=" + epicId + "}");
+        return (result + ", status=" + getStatus() + ", epicId=" + epicId + "}");
     }
 }

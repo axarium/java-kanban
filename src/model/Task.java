@@ -20,6 +20,13 @@ public class Task {
         this.status = TaskStatus.NEW;
     }
 
+    public Task(Task task) {
+        this.id = task.id;
+        this.title = task.title;
+        this.description = task.description;
+        this.status = task.status;
+    }
+
     public int getId() {
         return id;
     }
@@ -80,6 +87,6 @@ public class Task {
             result += "description=null";
         }
 
-        return (result + ",  status=" + status + "}");
+        return (result + ", status=" + status + "}");
     }
 }
