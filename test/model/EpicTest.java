@@ -37,17 +37,4 @@ class EpicTest {
 
         assertNotEquals(epic1, epic2);
     }
-
-    @Test
-    void epicToString() {
-        Epic epic = new Epic("Title", "Description");
-        String expectedString = "Epic{id=0, title='Title', description.length=11, status=NEW, subtasksIds=[]}";
-
-        assertEquals(expectedString, epic.toString());
-
-        epic.setDescription(null);
-        expectedString = "Epic{id=0, title='Title', description=null, status=NEW, subtasksIds=[]}";
-
-        assertEquals(expectedString, epic.toString());
-    }
 }

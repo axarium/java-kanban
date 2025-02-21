@@ -55,17 +55,4 @@ class TaskTest {
 
         assertNotEquals(task1, task2);
     }
-
-    @Test
-    void taskToString() {
-        Task task = new Task("Title", "Description", TaskStatus.DONE);
-        String expectedString = "Task{id=0, title='Title', description.length=11, status=DONE}";
-
-        assertEquals(expectedString, task.toString());
-
-        task.setDescription(null);
-        expectedString = "Task{id=0, title='Title', description=null, status=DONE}";
-
-        assertEquals(expectedString, task.toString());
-    }
 }

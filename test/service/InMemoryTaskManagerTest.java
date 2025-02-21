@@ -13,14 +13,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
-    private final InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
+    private InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
 
     @BeforeEach
-    void clearMemoryTaskManager() {
-        inMemoryTaskManager.removeAllTasks();
-        inMemoryTaskManager.removeAllEpics();
-        inMemoryTaskManager.removeAllSubtasks();
-        inMemoryTaskManager.getHistory().clear();
+    void createNewInMemoryTaskManager() {
+        inMemoryTaskManager = new InMemoryTaskManager();
     }
 
     @Test

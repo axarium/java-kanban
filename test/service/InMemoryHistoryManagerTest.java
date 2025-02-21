@@ -12,7 +12,7 @@ class InMemoryHistoryManagerTest {
     private InMemoryHistoryManager inMemoryHistoryManager;
 
     @BeforeEach
-    void newMemoryHistoryManager() {
+    void createNewInMemoryHistoryManager() {
         inMemoryHistoryManager = new InMemoryHistoryManager();
     }
 
@@ -37,6 +37,28 @@ class InMemoryHistoryManagerTest {
         inMemoryHistoryManager.add(task);
 
         assertEquals(2, inMemoryHistoryManager.getHistory().size());
+    }
+
+    @Test
+    void addMoreTasksThanMaxHistorySize() {
+        Task task1 = new Task("Title1", "Description1", TaskStatus.NEW);
+        Task task2 = new Task("Title2", "Description2", TaskStatus.IN_PROGRESS);
+        task1.setId(1);
+        task2.setId(2);
+
+        inMemoryHistoryManager.add(task1);
+        for (int i = 1; i < 10; i++) {
+            inMemoryHistoryManager.add(task2);
+        }
+
+        assertEquals(task1, inMemoryHistoryManager.getHistory().getFirst());
+        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast());
+
+        inMemoryHistoryManager.add(task2);
+
+        assertEquals(10, inMemoryHistoryManager.getHistory().size());
+        assertEquals(task2, inMemoryHistoryManager.getHistory().getFirst());
+        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast());
     }
 
     @Test
