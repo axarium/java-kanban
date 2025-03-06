@@ -5,33 +5,50 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest {
+
     @Test
     void createSubtask() {
         Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, 1);
+        subtask.setId(1);
 
         assertEquals("Title", subtask.getTitle());
         assertEquals("Description", subtask.getDescription());
         assertEquals(TaskStatus.NEW, subtask.getStatus());
-        assertEquals(0, subtask.getId());
+        assertEquals(1, subtask.getId());
         assertEquals(1, subtask.getEpicId());
     }
 
     @Test
-    void comparisonSubtasks() {
-        Subtask subtask1 = new Subtask("Title", "Description", TaskStatus.NEW, 1);
-        Subtask subtask2 = new Subtask("Title", "Description", TaskStatus.NEW, 1);
+    void copySubtask() {
+        Subtask firstSubtask = new Subtask("Title", "Description", TaskStatus.NEW, 1);
+        firstSubtask.setId(1);
+        Subtask secondSubtask = new Subtask(firstSubtask);
 
-        assertEquals(subtask1, subtask2);
-        assertNotEquals(null, subtask2);
+        assertEquals(firstSubtask.getTitle(), secondSubtask.getTitle());
+        assertEquals(firstSubtask.getDescription(), secondSubtask.getDescription());
+        assertEquals(firstSubtask.getStatus(), secondSubtask.getStatus());
+        assertEquals(firstSubtask.getId(), secondSubtask.getId());
+        assertEquals(firstSubtask.getEpicId(), secondSubtask.getEpicId());
+    }
 
-        subtask2.setTitle("NewTitle");
-        subtask2.setDescription("NewDescription");
-        subtask2.setStatus(TaskStatus.NEW);
+    @Test
+    void compareSubtasks() {
+        Subtask firstSubtask = new Subtask("Title", "Description", TaskStatus.NEW, 1);
+        firstSubtask.setId(1);
+        Subtask secondSubtask = new Subtask(firstSubtask);
 
-        assertEquals(subtask1, subtask2);
+        assertNotEquals(null, firstSubtask);
+        assertEquals(firstSubtask, firstSubtask);
+        assertEquals(firstSubtask, secondSubtask);
 
-        subtask2.setId(1);
+        secondSubtask.setTitle("NewTitle");
+        secondSubtask.setDescription("NewDescription");
+        secondSubtask.setStatus(TaskStatus.IN_PROGRESS);
 
-        assertNotEquals(subtask1, subtask2);
+        assertEquals(firstSubtask, secondSubtask);
+
+        secondSubtask.setId(2);
+
+        assertNotEquals(firstSubtask, secondSubtask);
     }
 }

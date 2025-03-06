@@ -14,27 +14,44 @@ class EpicTest {
         assertEquals("Description", epic.getDescription());
         assertEquals(TaskStatus.NEW, epic.getStatus());
         assertEquals(0, epic.getId());
-
         assertNotNull(epic.getSubtasksIds());
         assertTrue(epic.getSubtasksIds().isEmpty());
     }
 
     @Test
-    void comparisonEpics() {
-        Epic epic1 = new Epic("Title", "Description");
-        Epic epic2 = new Epic("Title", "Description");
+    void copyEpic() {
+        Epic firstEpic = new Epic("Title", "Description");
+        firstEpic.setId(1);
+        firstEpic.getSubtasksIds().add(1);
+        Epic secondEpic = new Epic(firstEpic);
 
-        assertEquals(epic1, epic2);
-        assertNotEquals(null, epic2);
+        assertEquals(firstEpic.getTitle(), secondEpic.getTitle());
+        assertEquals(firstEpic.getDescription(), secondEpic.getDescription());
+        assertEquals(firstEpic.getStatus(), secondEpic.getStatus());
+        assertEquals(firstEpic.getId(), secondEpic.getId());
+        assertEquals(firstEpic.getSubtasksIds(), secondEpic.getSubtasksIds());
+    }
 
-        epic2.setTitle("NewTitle");
-        epic2.setDescription("NewDescription");
-        epic2.setStatus(TaskStatus.IN_PROGRESS);
+    @Test
+    void compareEpics() {
+        Epic firstEpic = new Epic("Title", "Description");
+        firstEpic.setId(1);
+        firstEpic.getSubtasksIds().add(1);
+        Epic secondEpic = new Epic(firstEpic);
 
-        assertEquals(epic1, epic2);
+        assertNotEquals(null, firstEpic);
+        assertEquals(firstEpic, firstEpic);
+        assertEquals(firstEpic, secondEpic);
 
-        epic2.setId(1);
+        secondEpic.setTitle("NewTitle");
+        secondEpic.setDescription("NewDescription");
+        secondEpic.setStatus(TaskStatus.IN_PROGRESS);
+        secondEpic.getSubtasksIds().add(2);
 
-        assertNotEquals(epic1, epic2);
+        assertEquals(firstEpic, secondEpic);
+
+        secondEpic.setId(2);
+
+        assertNotEquals(firstEpic, secondEpic);
     }
 }

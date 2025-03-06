@@ -25,9 +25,39 @@ class InMemoryHistoryManagerTest {
     @Test
     void addTaskInHistory() {
         Task task = new Task("Title", "Description", TaskStatus.NEW);
+        task.setId(1);
         inMemoryHistoryManager.add(task);
+        Task taskInHistory = inMemoryHistoryManager.getHistory().getFirst();
 
         assertEquals(1, inMemoryHistoryManager.getHistory().size());
+        assertEquals(task, taskInHistory);
+
+        task.setId(2);
+        task.setTitle("NewTitle");
+        task.setDescription("NewDescription");
+        task.setStatus(TaskStatus.IN_PROGRESS);
+
+        assertEquals(1, taskInHistory.getId());
+        assertEquals("Title", taskInHistory.getTitle());
+        assertEquals("Description", taskInHistory.getDescription());
+        assertEquals(TaskStatus.NEW, taskInHistory.getStatus());
+    }
+
+    @Test
+    void taskInHistoryCannotBeChanged() {
+        Task task = new Task("Title", "Description", TaskStatus.NEW);
+        task.setId(1);
+        inMemoryHistoryManager.add(task);
+        Task copyTaskFromHistory = inMemoryHistoryManager.getHistory().getFirst();
+        copyTaskFromHistory.setId(2);
+        copyTaskFromHistory.setTitle("NewTitle");
+        copyTaskFromHistory.setDescription("NewDescription");
+        copyTaskFromHistory.setStatus(TaskStatus.IN_PROGRESS);
+
+        assertEquals(1, inMemoryHistoryManager.getHistory().getFirst().getId());
+        assertEquals("Title", inMemoryHistoryManager.getHistory().getFirst().getTitle());
+        assertEquals("Description", inMemoryHistoryManager.getHistory().getFirst().getDescription());
+        assertEquals(TaskStatus.NEW, inMemoryHistoryManager.getHistory().getFirst().getStatus());
     }
 
     @Test
@@ -41,41 +71,22 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void addMoreTasksThanMaxHistorySize() {
-        Task task1 = new Task("Title1", "Description1", TaskStatus.NEW);
-        Task task2 = new Task("Title2", "Description2", TaskStatus.IN_PROGRESS);
-        task1.setId(1);
-        task2.setId(2);
-
-        inMemoryHistoryManager.add(task1);
+        Task firstTask = new Task("Title", "Description", TaskStatus.NEW);
+        Task secondTask = new Task("Title", "Description", TaskStatus.NEW);
+        firstTask.setId(1);
+        secondTask.setId(2);
+        inMemoryHistoryManager.add(firstTask);
         for (int i = 1; i < 10; i++) {
-            inMemoryHistoryManager.add(task2);
+            inMemoryHistoryManager.add(secondTask);
         }
 
-        assertEquals(task1, inMemoryHistoryManager.getHistory().getFirst());
-        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast());
+        assertEquals(firstTask, inMemoryHistoryManager.getHistory().getFirst());
+        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getLast());
 
-        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.add(secondTask);
 
         assertEquals(10, inMemoryHistoryManager.getHistory().size());
-        assertEquals(task2, inMemoryHistoryManager.getHistory().getFirst());
-        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast());
-    }
-
-    @Test
-    void addedCopyInHistory() {
-        Task task = new Task("Title", "Description", TaskStatus.NEW);
-        task.setId(1);
-        inMemoryHistoryManager.add(task);
-        Task taskInHistory = inMemoryHistoryManager.getHistory().getFirst();
-
-        task.setId(2);
-        task.setTitle("NewTitle");
-        task.setDescription("NewDescription");
-        task.setStatus(TaskStatus.IN_PROGRESS);
-
-        assertEquals(1, taskInHistory.getId());
-        assertEquals("Title", taskInHistory.getTitle());
-        assertEquals("Description", taskInHistory.getDescription());
-        assertEquals(TaskStatus.NEW, taskInHistory.getStatus());
+        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getFirst());
+        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getLast());
     }
 }

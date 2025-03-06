@@ -28,31 +28,34 @@ class TaskTest {
 
     @Test
     void copyTask() {
-        Task task1 = new Task("Title", "Description", TaskStatus.DONE);
-        Task task2 = new Task(task1);
+        Task firstTask = new Task("Title", "Description", TaskStatus.NEW);
+        firstTask.setId(1);
+        Task secondTask = new Task(firstTask);
 
-        assertEquals(task1.getTitle(), task2.getTitle());
-        assertEquals(task1.getDescription(), task2.getDescription());
-        assertEquals(task1.getStatus(), task2.getStatus());
-        assertEquals(task1.getId(), task2.getId());
+        assertEquals(firstTask.getTitle(), secondTask.getTitle());
+        assertEquals(firstTask.getDescription(), secondTask.getDescription());
+        assertEquals(firstTask.getStatus(), secondTask.getStatus());
+        assertEquals(firstTask.getId(), secondTask.getId());
     }
 
     @Test
-    void comparisonTasks() {
-        Task task1 = new Task("Title", "Description", TaskStatus.DONE);
-        Task task2 = new Task(task1);
+    void compareTasks() {
+        Task firstTask = new Task("Title", "Description", TaskStatus.NEW);
+        firstTask.setId(1);
+        Task secondTask = new Task(firstTask);
 
-        assertEquals(task1, task2);
-        assertNotEquals(null, task2);
+        assertNotEquals(null, firstTask);
+        assertEquals(firstTask, firstTask);
+        assertEquals(firstTask, secondTask);
 
-        task2.setTitle("NewTitle");
-        task2.setDescription("NewDescription");
-        task2.setStatus(TaskStatus.IN_PROGRESS);
+        secondTask.setTitle("NewTitle");
+        secondTask.setDescription("NewDescription");
+        secondTask.setStatus(TaskStatus.IN_PROGRESS);
 
-        assertEquals(task1, task2);
+        assertEquals(firstTask, secondTask);
 
-        task2.setId(1);
+        secondTask.setId(2);
 
-        assertNotEquals(task1, task2);
+        assertNotEquals(firstTask, secondTask);
     }
 }
