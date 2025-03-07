@@ -163,7 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        updateTask(currentTask, task);
+        updateAnyTaskData(currentTask, task);
 
         return task;
     }
@@ -176,7 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        updateTask(currentEpic, epic);
+        updateAnyTaskData(currentEpic, epic);
         calculateEpicStatus(currentEpic);
 
         return epic;
@@ -190,7 +190,7 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        updateTask(currentSubtask, subtask);
+        updateAnyTaskData(currentSubtask, subtask);
         Epic epic = epics.get(subtask.getEpicId());
         calculateEpicStatus(epic);
 
@@ -258,7 +258,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void updateTask(Task oldTask, Task newTask) {
+    private void updateAnyTaskData(Task oldTask, Task newTask) {
         oldTask.setTitle(newTask.getTitle());
         oldTask.setDescription(newTask.getDescription());
         oldTask.setStatus(newTask.getStatus());
