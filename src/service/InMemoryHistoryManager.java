@@ -53,14 +53,14 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void linkLast(Node node) {
-        if (tail != null) {
-            tail.next = node;
-        }
-
+        Node prevTail = tail;
         tail = node;
 
-        if (head == null) {
+        if (prevTail == null) {
             head = node;
+        }
+        else {
+            prevTail.next = node;
         }
     }
 
@@ -72,20 +72,16 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node nextNode = node.next;
         Node prevNode = node.prev;
 
-        if (prevNode != null) {
+        if (prevNode == null) {
+            head = nextNode;
+        } else {
             prevNode.next = nextNode;
         }
 
-        if (nextNode != null) {
-            nextNode.prev = prevNode;
-        }
-
-        if (node == head) {
-            head = nextNode;
-        }
-
-        if (node == tail) {
+        if (nextNode == null) {
             tail = prevNode;
+        } else {
+            nextNode.prev = prevNode;
         }
     }
 

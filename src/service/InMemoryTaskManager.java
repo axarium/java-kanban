@@ -163,9 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        currentTask.setTitle(task.getTitle());
-        currentTask.setDescription(task.getDescription());
-        currentTask.setStatus(task.getStatus());
+        updateTask(currentTask, task);
 
         return task;
     }
@@ -178,8 +176,8 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        currentEpic.setTitle(epic.getTitle());
-        currentEpic.setDescription(epic.getDescription());
+        updateTask(currentEpic, epic);
+        calculateEpicStatus(currentEpic);
 
         return epic;
     }
@@ -192,10 +190,7 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
 
-        currentSubtask.setTitle(subtask.getTitle());
-        currentSubtask.setDescription(subtask.getDescription());
-        currentSubtask.setStatus(subtask.getStatus());
-
+        updateTask(currentSubtask, subtask);
         Epic epic = epics.get(subtask.getEpicId());
         calculateEpicStatus(epic);
 
@@ -261,6 +256,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    private void updateTask(Task oldTask, Task newTask) {
+        oldTask.setTitle(newTask.getTitle());
+        oldTask.setDescription(newTask.getDescription());
+        oldTask.setStatus(newTask.getStatus());
     }
 
     private void calculateEpicStatus(Epic epic) {
