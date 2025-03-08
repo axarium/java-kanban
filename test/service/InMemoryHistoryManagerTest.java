@@ -6,6 +6,8 @@ import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
@@ -62,31 +64,59 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void addDuplicateInHistory() {
-        Task task = new Task("Title", "Description", TaskStatus.NEW);
-        inMemoryHistoryManager.add(task);
-        inMemoryHistoryManager.add(task);
+        Task firstTask = new Task("Title", "Description", TaskStatus.NEW);
+        firstTask.setId(1);
+        Task secondTask = new Task("NewTitle", "NewDescription", TaskStatus.IN_PROGRESS);
+        secondTask.setId(1);
+        inMemoryHistoryManager.add(firstTask);
+        inMemoryHistoryManager.add(secondTask);
+        Task taskInHistory = inMemoryHistoryManager.getHistory().getFirst();
 
-        assertEquals(2, inMemoryHistoryManager.getHistory().size());
+        assertEquals(1, inMemoryHistoryManager.getHistory().size());
+        assertEquals(1, taskInHistory.getId());
+        assertEquals("NewTitle", taskInHistory.getTitle());
+        assertEquals("NewDescription", taskInHistory.getDescription());
+        assertEquals(TaskStatus.IN_PROGRESS, taskInHistory.getStatus());
     }
 
     @Test
-    void addMoreTasksThanMaxHistorySize() {
+    void removeTasksFromHistory() {
         Task firstTask = new Task("Title", "Description", TaskStatus.NEW);
         Task secondTask = new Task("Title", "Description", TaskStatus.NEW);
+        Task thirdTask = new Task("Title", "Description", TaskStatus.NEW);
+        Task fourthTask = new Task("Title", "Description", TaskStatus.NEW);
         firstTask.setId(1);
         secondTask.setId(2);
+        thirdTask.setId(3);
+        fourthTask.setId(4);
         inMemoryHistoryManager.add(firstTask);
-        for (int i = 1; i < 10; i++) {
-            inMemoryHistoryManager.add(secondTask);
-        }
-
-        assertEquals(firstTask, inMemoryHistoryManager.getHistory().getFirst());
-        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getLast());
-
         inMemoryHistoryManager.add(secondTask);
+        inMemoryHistoryManager.add(thirdTask);
+        inMemoryHistoryManager.add(fourthTask);
+        inMemoryHistoryManager.remove(3);
+        List<Task> tasksInHistory = inMemoryHistoryManager.getHistory();
 
-        assertEquals(10, inMemoryHistoryManager.getHistory().size());
-        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getFirst());
-        assertEquals(secondTask, inMemoryHistoryManager.getHistory().getLast());
+        assertEquals(3, tasksInHistory.size());
+        assertEquals(firstTask, tasksInHistory.getFirst());
+        assertEquals(secondTask, tasksInHistory.get(1));
+        assertEquals(fourthTask, tasksInHistory.get(2));
+
+        inMemoryHistoryManager.remove(4);
+        tasksInHistory = inMemoryHistoryManager.getHistory();
+
+        assertEquals(2, tasksInHistory.size());
+        assertEquals(firstTask, tasksInHistory.getFirst());
+        assertEquals(secondTask, tasksInHistory.get(1));
+
+        inMemoryHistoryManager.remove(1);
+        tasksInHistory = inMemoryHistoryManager.getHistory();
+
+        assertEquals(1, tasksInHistory.size());
+        assertEquals(secondTask, tasksInHistory.getFirst());
+
+        inMemoryHistoryManager.remove(2);
+        tasksInHistory = inMemoryHistoryManager.getHistory();
+
+        assertTrue(tasksInHistory.isEmpty());
     }
 }

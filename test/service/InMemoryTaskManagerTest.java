@@ -498,25 +498,73 @@ class InMemoryTaskManagerTest {
     @Test
     void getHistory() {
         Task task = new Task("Title", "Description", TaskStatus.NEW);
-        Epic epic = new Epic("Title", "Description");
+        Epic firstEpic = new Epic("Title", "Description");
+        Epic secondEpic = new Epic("Title", "Description");
         inMemoryTaskManager.createTask(task);
-        inMemoryTaskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, epic.getId());
-        inMemoryTaskManager.createSubtask(subtask);
+        inMemoryTaskManager.createEpic(firstEpic);
+        inMemoryTaskManager.createEpic(secondEpic);
+        Subtask firstSubtask = new Subtask("Title", "Description", TaskStatus.NEW, firstEpic.getId());
+        Subtask secondSubtask = new Subtask("Title", "Description", TaskStatus.NEW, secondEpic.getId());
+        inMemoryTaskManager.createSubtask(firstSubtask);
+        inMemoryTaskManager.createSubtask(secondSubtask);
 
         assertNotNull(inMemoryTaskManager.getHistory());
         assertTrue(inMemoryTaskManager.getHistory().isEmpty());
 
         inMemoryTaskManager.getTaskById(task.getId());
-        inMemoryTaskManager.getEpicById(epic.getId());
-        inMemoryTaskManager.getSubtaskById(subtask.getId());
+        inMemoryTaskManager.getEpicById(firstEpic.getId());
+        inMemoryTaskManager.getSubtaskById(firstSubtask.getId());
+        inMemoryTaskManager.getEpicById(secondEpic.getId());
+        inMemoryTaskManager.getSubtaskById(secondSubtask.getId());
 
         List<Task> history = inMemoryTaskManager.getHistory();
 
-        assertEquals(3, history.size());
+        assertEquals(5, history.size());
         assertEquals(task.getId(), history.getFirst().getId());
-        assertEquals(epic.getId(), history.get(1).getId());
-        assertEquals(subtask.getId(), history.get(2).getId());
+        assertEquals(firstEpic.getId(), history.get(1).getId());
+        assertEquals(firstSubtask.getId(), history.get(2).getId());
+        assertEquals(secondEpic.getId(), history.get(3).getId());
+        assertEquals(secondSubtask.getId(), history.get(4).getId());
+
+        inMemoryTaskManager.removeTaskById(task.getId());
+        history = inMemoryTaskManager.getHistory();
+
+        assertEquals(4, history.size());
+        assertEquals(firstEpic.getId(), history.getFirst().getId());
+        assertEquals(firstSubtask.getId(), history.get(1).getId());
+        assertEquals(secondEpic.getId(), history.get(2).getId());
+        assertEquals(secondSubtask.getId(), history.get(3).getId());
+
+        inMemoryTaskManager.removeEpicById(firstEpic.getId());
+        history = inMemoryTaskManager.getHistory();
+
+        assertEquals(2, history.size());
+        assertEquals(secondEpic.getId(), history.getFirst().getId());
+        assertEquals(secondSubtask.getId(), history.get(1).getId());
+
+        inMemoryTaskManager.removeSubtaskById(secondSubtask.getId());
+        history = inMemoryTaskManager.getHistory();
+
+        assertEquals(1, history.size());
+        assertEquals(secondEpic.getId(), history.getFirst().getId());
+
+        inMemoryTaskManager.createTask(task);
+        inMemoryTaskManager.createSubtask(secondSubtask);
+        inMemoryTaskManager.getTaskById(task.getId());
+        inMemoryTaskManager.getSubtaskById(secondSubtask.getId());
+        inMemoryTaskManager.removeAllTasks();
+        inMemoryTaskManager.removeAllSubtasks();
+        history = inMemoryTaskManager.getHistory();
+
+        assertEquals(1, history.size());
+        assertEquals(secondEpic.getId(), history.getFirst().getId());
+
+        inMemoryTaskManager.createSubtask(secondSubtask);
+        inMemoryTaskManager.getSubtaskById(secondSubtask.getId());
+        inMemoryTaskManager.removeAllEpics();
+        history = inMemoryTaskManager.getHistory();
+
+        assertTrue(history.isEmpty());
     }
 
     @Test
