@@ -51,4 +51,24 @@ class SubtaskTest {
 
         assertNotEquals(firstSubtask, secondSubtask);
     }
+
+    @Test
+    void createSubtaskFromString() {
+        String validString = "1,SUBTASK,Title,NEW,Description,1";
+        String firstInvalidString = "id,SUBTASK,Title,NEW,Description,1";
+        String secondInvalidString = "1,SUBTASK,NEW,Description,1";
+        String thirdInvalidString = "1,SUBTASK,Title,UNKNOWN,Description,1";
+        String fourthInvalidString = "1,SUBTASK,Title,NEW,Description,epicId";
+        Subtask subtask = Subtask.fromString(validString);
+
+        assertEquals(1, subtask.getId());
+        assertEquals("Title", subtask.getTitle());
+        assertEquals("Description", subtask.getDescription());
+        assertEquals(TaskStatus.NEW, subtask.getStatus());
+        assertEquals(1, subtask.getEpicId());
+        assertThrows(IllegalArgumentException.class, () -> Subtask.fromString(firstInvalidString));
+        assertThrows(IndexOutOfBoundsException.class, () -> Subtask.fromString(secondInvalidString));
+        assertThrows(IllegalArgumentException.class, () -> Subtask.fromString(thirdInvalidString));
+        assertThrows(IllegalArgumentException.class, () -> Subtask.fromString(fourthInvalidString));
+    }
 }

@@ -5,10 +5,7 @@ import model.Epic;
 import model.Subtask;
 import model.TaskStatus;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private static int tasksCount = 0;
@@ -22,6 +19,29 @@ public class InMemoryTaskManager implements TaskManager {
         this.tasks = new HashMap<>();
         this.epics = new HashMap<>();
         this.subtasks = new HashMap<>();
+    }
+
+    public InMemoryTaskManager(List<Task> tasks, List<Epic> epics, List<Subtask> subtasks) {
+        this.historyManager = Managers.getDefaultHistory();
+        this.tasks = new HashMap<>();
+        this.epics = new HashMap<>();
+        this.subtasks = new HashMap<>();
+
+        for (Task task : tasks) {
+            this.createTaskWithoutChangeId(task);
+        }
+        for (Epic epic : epics) {
+            this.createEpicWithoutChangeId(epic);
+        }
+        for (Subtask subtask : subtasks) {
+            Epic epic = this.epics.get(subtask.getEpicId());
+
+            if (epic == null) {
+                continue;
+            }
+
+            this.createSubtaskWithoutChangeId(subtask);
+        }
     }
 
     @Override
@@ -130,13 +150,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createTask(Task task) {
         task.setId(generateId());
-        tasks.put(task.getId(), new Task(task));
+        createTaskWithoutChangeId(task);
     }
 
     @Override
     public void createEpic(Epic epic) {
         epic.setId(generateId());
-        epics.put(epic.getId(), new Epic(epic));
+        createEpicWithoutChangeId(epic);
     }
 
     @Override
@@ -148,9 +168,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         subtask.setId(generateId());
-        subtasks.put(subtask.getId(), new Subtask(subtask));
-        epic.getSubtasksIds().add(subtask.getId());
-        calculateEpicStatus(epic);
+        createSubtaskWithoutChangeId(subtask);
 
         return subtask;
     }
@@ -296,6 +314,21 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         epic.setStatus(TaskStatus.IN_PROGRESS);
+    }
+
+    private void createTaskWithoutChangeId(Task task) {
+        tasks.put(task.getId(), new Task(task));
+    }
+
+    private void createEpicWithoutChangeId(Epic epic) {
+        epics.put(epic.getId(), new Epic(epic));
+    }
+
+    private void createSubtaskWithoutChangeId(Subtask subtask) {
+        Epic epic = epics.get(subtask.getEpicId());
+        subtasks.put(subtask.getId(), new Subtask(subtask));
+        epic.getSubtasksIds().add(subtask.getId());
+        calculateEpicStatus(epic);
     }
 
     private static int generateId() {

@@ -8,6 +8,7 @@ import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +19,27 @@ class InMemoryTaskManagerTest {
     @BeforeEach
     void createNewInMemoryTaskManager() {
         inMemoryTaskManager = new InMemoryTaskManager();
+    }
+
+    @Test
+    void createNewInMemoryTaskManagerWithPreFilledValues() {
+        List<Task> tasks = new ArrayList<>();
+        List<Epic> epics = new ArrayList<>();
+        List<Subtask> subtasks = new ArrayList<>();
+        Task task = Task.fromString("1,TASK,Title,NEW,Description");
+        Epic epic = Epic.fromString("2,EPIC,Title,NEW,Description");
+        Subtask subtask = Subtask.fromString("3,SUBTASK,Title,NEW,Description,2");
+        tasks.add(task);
+        epics.add(epic);
+        subtasks.add(subtask);
+        InMemoryTaskManager newInMemoryTaskManager = new InMemoryTaskManager(tasks, epics, subtasks);
+
+        assertEquals(1, newInMemoryTaskManager.getAllTasks().size());
+        assertEquals(1, newInMemoryTaskManager.getAllEpics().size());
+        assertEquals(1, newInMemoryTaskManager.getAllSubtasks().size());
+        assertEquals(task, newInMemoryTaskManager.getAllTasks().getFirst());
+        assertEquals(epic, newInMemoryTaskManager.getAllEpics().getFirst());
+        assertEquals(subtask, newInMemoryTaskManager.getAllSubtasks().getFirst());
     }
 
     @Test
@@ -401,7 +423,6 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createEpic(epic);
         Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, epic.getId());
         inMemoryTaskManager.createSubtask(subtask);
-
         Subtask deletedSubtask = inMemoryTaskManager.removeSubtaskById(subtask.getId());
 
         assertEquals(subtask, deletedSubtask);

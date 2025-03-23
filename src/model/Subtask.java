@@ -13,20 +13,38 @@ public class Subtask extends Task {
         epicId = subtask.getEpicId();
     }
 
+    public static Subtask fromString(String value) throws IndexOutOfBoundsException, IllegalArgumentException {
+        String[] subtaskFields = value.split(",");
+        String subtaskId = subtaskFields[0];
+        String subtaskTitle = subtaskFields[2];
+        String subtaskStatus = subtaskFields[3];
+        String subtaskDescription = subtaskFields[4];
+        String subtaskEpicId = subtaskFields[5];
+        Subtask subtask = new Subtask(
+                subtaskTitle,
+                subtaskDescription,
+                TaskStatus.valueOf(subtaskStatus),
+                Integer.parseInt(subtaskEpicId)
+        );
+
+        subtask.setId(Integer.parseInt(subtaskId));
+
+        return subtask;
+    }
+
     public int getEpicId() {
         return epicId;
     }
 
     @Override
     public String toString() {
-        String result = "Subtask{id=" + getId() + ", title='" + getTitle() + "', ";
-
-        if (getDescription() != null) {
-            result += "description.length=" + getDescription().length();
-        } else {
-            result += "description=null";
-        }
-
-        return (result + ", status=" + getStatus() + ", epicId=" + epicId + "}");
+        return String.format(
+                "%d,SUBTASK,%s,%s,%s,%d",
+                getId(),
+                getTitle(),
+                getStatus(),
+                getDescription(),
+                getEpicId()
+        );
     }
 }

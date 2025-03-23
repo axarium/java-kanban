@@ -27,6 +27,19 @@ public class Task {
         this.status = task.status;
     }
 
+    public static Task fromString(String value) throws IndexOutOfBoundsException, IllegalArgumentException {
+        String[] taskFields = value.split(",");
+        String taskId = taskFields[0];
+        String taskTitle = taskFields[2];
+        String taskStatus = taskFields[3];
+        String taskDescription = taskFields[4];
+        Task task = new Task(taskTitle, taskDescription, TaskStatus.valueOf(taskStatus));
+
+        task.setId(Integer.parseInt(taskId));
+
+        return task;
+    }
+
     public int getId() {
         return id;
     }
@@ -79,14 +92,12 @@ public class Task {
 
     @Override
     public String toString() {
-        String result = "Task{id=" + id + ", title='" + title + "', ";
-
-        if (description != null) {
-            result += "description.length=" + description.length();
-        } else {
-            result += "description=null";
-        }
-
-        return (result + ", status=" + status + "}");
+        return String.format(
+                "%d,TASK,%s,%s,%s",
+                getId(),
+                getTitle(),
+                getStatus(),
+                getDescription()
+        );
     }
 }
