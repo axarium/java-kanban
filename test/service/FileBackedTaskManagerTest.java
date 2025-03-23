@@ -737,8 +737,11 @@ public class FileBackedTaskManagerTest {
         Epic epic = new Epic("Title", "Description");
         fileBackedTaskManager.createTask(task);
         fileBackedTaskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, epic.getId());
+        Subtask subtask = new Subtask("Title", "Description", TaskStatus.DONE, epic.getId());
         fileBackedTaskManager.createSubtask(subtask);
+        Task taskInManager = fileBackedTaskManager.getTaskById(task.getId());
+        Epic epicInManager = fileBackedTaskManager.getEpicById(epic.getId());
+        Subtask subtaskInManager = fileBackedTaskManager.getSubtaskById(subtask.getId());
         FileBackedTaskManager newFileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFilePath);
 
         assertNotNull(newFileBackedTaskManager);
@@ -751,21 +754,30 @@ public class FileBackedTaskManagerTest {
         assertEquals(1, newFileBackedTaskManager.getAllSubtasks().size());
         assertTrue(newFileBackedTaskManager.getHistory().isEmpty());
 
-        assertEquals(task.getId(), newFileBackedTaskManager.getAllTasks().getFirst().getId());
-        assertEquals(task.getTitle(), newFileBackedTaskManager.getAllTasks().getFirst().getTitle());
-        assertEquals(task.getDescription(), newFileBackedTaskManager.getAllTasks().getFirst().getDescription());
-        assertEquals(task.getStatus(), newFileBackedTaskManager.getAllTasks().getFirst().getStatus());
+        assertEquals(taskInManager.getId(), newFileBackedTaskManager.getAllTasks().getFirst().getId());
+        assertEquals(taskInManager.getTitle(), newFileBackedTaskManager.getAllTasks().getFirst().getTitle());
+        assertEquals(
+                taskInManager.getDescription(),
+                newFileBackedTaskManager.getAllTasks().getFirst().getDescription()
+        );
+        assertEquals(taskInManager.getStatus(), newFileBackedTaskManager.getAllTasks().getFirst().getStatus());
 
-        assertEquals(epic.getId(), newFileBackedTaskManager.getAllEpics().getFirst().getId());
-        assertEquals(epic.getTitle(), newFileBackedTaskManager.getAllEpics().getFirst().getTitle());
-        assertEquals(epic.getDescription(), newFileBackedTaskManager.getAllEpics().getFirst().getDescription());
-        assertEquals(epic.getStatus(), newFileBackedTaskManager.getAllEpics().getFirst().getStatus());
+        assertEquals(epicInManager.getId(), newFileBackedTaskManager.getAllEpics().getFirst().getId());
+        assertEquals(epicInManager.getTitle(), newFileBackedTaskManager.getAllEpics().getFirst().getTitle());
+        assertEquals(
+                epicInManager.getDescription(),
+                newFileBackedTaskManager.getAllEpics().getFirst().getDescription()
+        );
+        assertEquals(epicInManager.getStatus(), newFileBackedTaskManager.getAllEpics().getFirst().getStatus());
 
-        assertEquals(subtask.getId(), newFileBackedTaskManager.getAllSubtasks().getFirst().getId());
-        assertEquals(subtask.getTitle(), newFileBackedTaskManager.getAllSubtasks().getFirst().getTitle());
-        assertEquals(subtask.getDescription(), newFileBackedTaskManager.getAllSubtasks().getFirst().getDescription());
-        assertEquals(subtask.getStatus(), newFileBackedTaskManager.getAllSubtasks().getFirst().getStatus());
-        assertEquals(subtask.getEpicId(), newFileBackedTaskManager.getAllSubtasks().getFirst().getEpicId());
+        assertEquals(subtaskInManager.getId(), newFileBackedTaskManager.getAllSubtasks().getFirst().getId());
+        assertEquals(subtaskInManager.getTitle(), newFileBackedTaskManager.getAllSubtasks().getFirst().getTitle());
+        assertEquals(
+                subtaskInManager.getDescription(),
+                newFileBackedTaskManager.getAllSubtasks().getFirst().getDescription()
+        );
+        assertEquals(subtaskInManager.getStatus(), newFileBackedTaskManager.getAllSubtasks().getFirst().getStatus());
+        assertEquals(subtaskInManager.getEpicId(), newFileBackedTaskManager.getAllSubtasks().getFirst().getEpicId());
     }
 
     @Test
@@ -779,6 +791,28 @@ public class FileBackedTaskManagerTest {
         assertNotNull(newFileBackedTaskManager.getHistory());
         assertTrue(newFileBackedTaskManager.getAllTasks().isEmpty());
         assertTrue(newFileBackedTaskManager.getAllEpics().isEmpty());
+        assertTrue(newFileBackedTaskManager.getAllSubtasks().isEmpty());
+        assertTrue(newFileBackedTaskManager.getHistory().isEmpty());
+    }
+
+    @Test
+    void successCreateManagerFromFileWithSubtaskWithInvalidEpicId() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFilePath.toString(), UTF_8))) {
+            bw.write("id,type,title,status,description,epicId\n1,EPIC,Title,DONE,Description\n");
+            bw.write("2,SUBTASK,Title,NEW,Description,-1");
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
+        FileBackedTaskManager newFileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFilePath);
+
+        assertNotNull(newFileBackedTaskManager);
+        assertNotNull(newFileBackedTaskManager.getAllTasks());
+        assertNotNull(newFileBackedTaskManager.getAllEpics());
+        assertNotNull(newFileBackedTaskManager.getAllSubtasks());
+        assertNotNull(newFileBackedTaskManager.getHistory());
+        assertEquals(1, newFileBackedTaskManager.getAllEpics().size());
+        assertEquals(TaskStatus.NEW, newFileBackedTaskManager.getAllEpics().getFirst().getStatus());
         assertTrue(newFileBackedTaskManager.getAllSubtasks().isEmpty());
         assertTrue(newFileBackedTaskManager.getHistory().isEmpty());
     }

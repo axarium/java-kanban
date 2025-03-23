@@ -321,6 +321,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void createEpicWithoutChangeId(Epic epic) {
+        epic.setStatus(TaskStatus.NEW);
         epics.put(epic.getId(), new Epic(epic));
     }
 
