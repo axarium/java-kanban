@@ -60,19 +60,9 @@ class TaskTest {
     }
 
     @Test
-    void createTaskFromString() {
-        String validString = "1,TASK,Title,NEW,Description";
-        String firstInvalidString = "id,TASK,Title,NEW,Description";
-        String secondInvalidString = "1,TASK,NEW,Description";
-        String thirdInvalidString = "1,TASK,Title,UNKNOWN,Description";
-        Task task = Task.fromString(validString);
+    void getTaskType() {
+        Task task = new Task("Title", "Description", TaskStatus.NEW);
 
-        assertEquals(1, task.getId());
-        assertEquals("Title", task.getTitle());
-        assertEquals("Description", task.getDescription());
-        assertEquals(TaskStatus.NEW, task.getStatus());
-        assertThrows(IllegalArgumentException.class, () -> Task.fromString(firstInvalidString));
-        assertThrows(IndexOutOfBoundsException.class, () -> Task.fromString(secondInvalidString));
-        assertThrows(IllegalArgumentException.class, () -> Task.fromString(thirdInvalidString));
+        assertEquals(TaskType.TASK, task.getType());
     }
 }

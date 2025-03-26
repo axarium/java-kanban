@@ -16,18 +16,9 @@ public class Epic extends Task {
         this.subtasksIds = new ArrayList<>(epic.getSubtasksIds());
     }
 
-    public static Epic fromString(String value) throws IndexOutOfBoundsException, IllegalArgumentException {
-        String[] epicFields = value.split(",");
-        String epicId = epicFields[0];
-        String epicTitle = epicFields[2];
-        String epicStatus = epicFields[3];
-        String epicDescription = epicFields[4];
-        Epic epic = new Epic(epicTitle, epicDescription);
-
-        epic.setId(Integer.parseInt(epicId));
-        epic.setStatus(TaskStatus.valueOf(epicStatus));
-
-        return epic;
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
     }
 
     public List<Integer> getSubtasksIds() {
@@ -36,12 +27,14 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return String.format(
-                "%d,EPIC,%s,%s,%s",
-                getId(),
-                getTitle(),
-                getStatus(),
-                getDescription()
-        );
+        String result = "Epic{id=" + getId() + ", title='" + getTitle() + "', ";
+
+        if (getDescription() != null) {
+            result += "description.length=" + getDescription().length();
+        } else {
+            result += "description=null";
+        }
+
+        return (result + ", status=" + getStatus() + ", subtasksIds=" + subtasksIds + "}");
     }
 }

@@ -2,27 +2,23 @@ package service;
 
 import exception.ManagerLoadException;
 import exception.ManagerSaveException;
-import exception.ManagerTaskTypeException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import model.TaskType;
+import util.TaskConverter;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final Path fileStorage;
+    private static final String FILE_FORMAT = "id,type,title,status,description,epicId";
 
     public FileBackedTaskManager(Path fileStorage) {
-        this.fileStorage = fileStorage;
-    }
-
-    public FileBackedTaskManager(List<Task> tasks, List<Epic> epics, List<Subtask> subtasks, Path fileStorage) {
-        super(tasks, epics, subtasks);
         this.fileStorage = fileStorage;
     }
 
@@ -107,33 +103,42 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadException {
         try (BufferedReader br = new BufferedReader(new FileReader(file.toString(), UTF_8))) {
-            List<Task> tasks = new ArrayList<>();
-            List<Epic> epics = new ArrayList<>();
-            List<Subtask> subtasks = new ArrayList<>();
+            FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
+            int maxId = 0;
 
             br.readLine();
             while (br.ready()) {
                 String line = br.readLine();
                 String[] lineElements = line.split(",");
-                String taskType = lineElements[1];
+
+                int taskId = Integer.parseInt(lineElements[0]);
+                TaskType taskType = TaskType.valueOf(lineElements[1]);
+
+                if (taskId > maxId) {
+                    maxId = taskId;
+                }
 
                 switch (taskType) {
-                    case "TASK":
-                        tasks.add(Task.fromString(line));
+                    case TaskType.TASK:
+                        fileBackedTaskManager.tasks.put(taskId, TaskConverter.taskFromCsvString(line));
                         break;
-                    case "EPIC":
-                        epics.add(Epic.fromString(line));
+                    case TaskType.EPIC:
+                        fileBackedTaskManager.epics.put(taskId, TaskConverter.epicFromCsvString(line));
                         break;
-                    case "SUBTASK":
-                        subtasks.add(Subtask.fromString(line));
+                    case TaskType.SUBTASK:
+                        int epicId = Integer.parseInt(lineElements[5]);
+                        fileBackedTaskManager.epics.get(epicId).getSubtasksIds().add(taskId);
+                        fileBackedTaskManager.subtasks.put(taskId, TaskConverter.subtaskFromCsvString(line));
                         break;
-                    default:
-                        throw new ManagerTaskTypeException(String.format("Неизвестный тип задачи - %s", taskType));
                 }
             }
 
-            return new FileBackedTaskManager(tasks, epics, subtasks, file);
-        } catch (IndexOutOfBoundsException | IllegalArgumentException | ManagerTaskTypeException exception) {
+            if (maxId > FileBackedTaskManager.tasksCount) {
+                FileBackedTaskManager.tasksCount = maxId;
+            }
+
+            return fileBackedTaskManager;
+        } catch (IndexOutOfBoundsException | IllegalArgumentException exception) {
             System.out.printf("[ERROR] Неверный формат файла.\nТекст ошибки: %s.\n", exception.getMessage());
             return new FileBackedTaskManager(file);
         } catch (IOException exception) {
@@ -147,16 +152,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             List<Epic> allEpics = getAllEpics();
             List<Subtask> allSubtasks = getAllSubtasks();
 
-            bw.write("id,type,title,status,description,epicId");
+            bw.write(FILE_FORMAT);
 
             for (Task task : allTasks) {
-                bw.write(String.format("\n%s", task.toString()));
+                bw.write(String.format("\n%s", TaskConverter.taskToCsvString(task)));
             }
             for (Epic epic : allEpics) {
-                bw.write(String.format("\n%s", epic.toString()));
+                bw.write(String.format("\n%s", TaskConverter.epicToCsvString(epic)));
             }
             for (Subtask subtask : allSubtasks) {
-                bw.write(String.format("\n%s", subtask.toString()));
+                bw.write(String.format("\n%s", TaskConverter.subtaskToCsvString(subtask)));
             }
         } catch (IOException exception) {
             throw new ManagerSaveException(exception.getMessage());

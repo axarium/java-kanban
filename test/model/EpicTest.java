@@ -56,19 +56,9 @@ class EpicTest {
     }
 
     @Test
-    void createEpicFromString() {
-        String validString = "1,EPIC,Title,NEW,Description";
-        String firstInvalidString = "id,EPIC,Title,NEW,Description";
-        String secondInvalidString = "1,EPIC,NEW,Description";
-        String thirdInvalidString = "1,EPIC,Title,UNKNOWN,Description";
-        Epic epic = Epic.fromString(validString);
+    void getEpicType() {
+        Epic epic = new Epic("Title", "Description");
 
-        assertEquals(1, epic.getId());
-        assertEquals("Title", epic.getTitle());
-        assertEquals("Description", epic.getDescription());
-        assertEquals(TaskStatus.NEW, epic.getStatus());
-        assertThrows(IllegalArgumentException.class, () -> Epic.fromString(firstInvalidString));
-        assertThrows(IndexOutOfBoundsException.class, () -> Epic.fromString(secondInvalidString));
-        assertThrows(IllegalArgumentException.class, () -> Epic.fromString(thirdInvalidString));
+        assertEquals(TaskType.EPIC, epic.getType());
     }
 }

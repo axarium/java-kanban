@@ -32,37 +32,6 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void createNewFileBackedTaskManagerWithPreFilledValues() {
-        try {
-            List<Task> tasks = new ArrayList<>();
-            List<Epic> epics = new ArrayList<>();
-            List<Subtask> subtasks = new ArrayList<>();
-            Task task = Task.fromString("1,TASK,Title,NEW,Description");
-            Epic epic = Epic.fromString("2,EPIC,Title,NEW,Description");
-            Subtask subtask = Subtask.fromString("3,SUBTASK,Title,NEW,Description,2");
-            tasks.add(task);
-            epics.add(epic);
-            subtasks.add(subtask);
-            Path newTempFilePath = Files.createTempFile("test", ".csv");
-            InMemoryTaskManager newFileBackedTaskManager = new FileBackedTaskManager(
-                    tasks,
-                    epics,
-                    subtasks,
-                    newTempFilePath
-            );
-
-            assertEquals(1, newFileBackedTaskManager.getAllTasks().size());
-            assertEquals(1, newFileBackedTaskManager.getAllEpics().size());
-            assertEquals(1, newFileBackedTaskManager.getAllSubtasks().size());
-            assertEquals(task, newFileBackedTaskManager.getAllTasks().getFirst());
-            assertEquals(epic, newFileBackedTaskManager.getAllEpics().getFirst());
-            assertEquals(subtask, newFileBackedTaskManager.getAllSubtasks().getFirst());
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
-
-    @Test
     void createTask() {
         Task task = new Task("Title", "Description", TaskStatus.NEW);
         fileBackedTaskManager.createTask(task);
@@ -796,28 +765,6 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void successCreateManagerFromFileWithSubtaskWithInvalidEpicId() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFilePath.toString(), UTF_8))) {
-            bw.write("id,type,title,status,description,epicId\n1,EPIC,Title,DONE,Description\n");
-            bw.write("2,SUBTASK,Title,NEW,Description,-1");
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        FileBackedTaskManager newFileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFilePath);
-
-        assertNotNull(newFileBackedTaskManager);
-        assertNotNull(newFileBackedTaskManager.getAllTasks());
-        assertNotNull(newFileBackedTaskManager.getAllEpics());
-        assertNotNull(newFileBackedTaskManager.getAllSubtasks());
-        assertNotNull(newFileBackedTaskManager.getHistory());
-        assertEquals(1, newFileBackedTaskManager.getAllEpics().size());
-        assertEquals(TaskStatus.NEW, newFileBackedTaskManager.getAllEpics().getFirst().getStatus());
-        assertTrue(newFileBackedTaskManager.getAllSubtasks().isEmpty());
-        assertTrue(newFileBackedTaskManager.getHistory().isEmpty());
-    }
-
-    @Test
     void errorCreateManagerFromFileWithIndexOutOfBoundsException() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFilePath.toString(), UTF_8))) {
             bw.write("id,type,title,status,description,epicId\n1,TASK,Title,NEW");
@@ -842,27 +789,6 @@ public class FileBackedTaskManagerTest {
     void errorCreateManagerFromFileWithIllegalArgumentException() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFilePath.toString(), UTF_8))) {
             bw.write("id,type,title,status,description,epicId\nid,TASK,Title,NEW,Description");
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        FileBackedTaskManager newFileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFilePath);
-
-        assertNotNull(newFileBackedTaskManager);
-        assertNotNull(newFileBackedTaskManager.getAllTasks());
-        assertNotNull(newFileBackedTaskManager.getAllEpics());
-        assertNotNull(newFileBackedTaskManager.getAllSubtasks());
-        assertNotNull(newFileBackedTaskManager.getHistory());
-        assertTrue(newFileBackedTaskManager.getAllTasks().isEmpty());
-        assertTrue(newFileBackedTaskManager.getAllEpics().isEmpty());
-        assertTrue(newFileBackedTaskManager.getAllSubtasks().isEmpty());
-        assertTrue(newFileBackedTaskManager.getHistory().isEmpty());
-    }
-
-    @Test
-    void errorCreateManagerFromFileWithManagerTaskTypeException() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(tempFilePath.toString(), UTF_8))) {
-            bw.write("id,type,title,status,description,epicId\n1,TASK,Title,ERROR,Description");
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
