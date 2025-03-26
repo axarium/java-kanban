@@ -7,7 +7,9 @@ import model.TaskStatus;
 
 public class TaskConverter {
 
-    private TaskConverter() {}
+    private TaskConverter() {
+
+    }
 
     public static String taskToCsvString(Task task) {
         return String.format(
