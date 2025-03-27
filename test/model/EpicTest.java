@@ -54,4 +54,11 @@ class EpicTest {
 
         assertNotEquals(firstEpic, secondEpic);
     }
+
+    @Test
+    void getEpicType() {
+        Epic epic = new Epic("Title", "Description");
+
+        assertEquals(TaskType.EPIC, epic.getType());
+    }
 }

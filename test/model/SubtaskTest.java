@@ -51,4 +51,11 @@ class SubtaskTest {
 
         assertNotEquals(firstSubtask, secondSubtask);
     }
+
+    @Test
+    void getSubtaskType() {
+        Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, 1);
+
+        assertEquals(TaskType.SUBTASK, subtask.getType());
+    }
 }

@@ -401,7 +401,6 @@ class InMemoryTaskManagerTest {
         inMemoryTaskManager.createEpic(epic);
         Subtask subtask = new Subtask("Title", "Description", TaskStatus.NEW, epic.getId());
         inMemoryTaskManager.createSubtask(subtask);
-
         Subtask deletedSubtask = inMemoryTaskManager.removeSubtaskById(subtask.getId());
 
         assertEquals(subtask, deletedSubtask);

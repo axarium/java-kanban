@@ -58,4 +58,11 @@ class TaskTest {
 
         assertNotEquals(firstTask, secondTask);
     }
+
+    @Test
+    void getTaskType() {
+        Task task = new Task("Title", "Description", TaskStatus.NEW);
+
+        assertEquals(TaskType.TASK, task.getType());
+    }
 }

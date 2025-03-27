@@ -5,17 +5,14 @@ import model.Epic;
 import model.Subtask;
 import model.TaskStatus;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private static int tasksCount = 0;
-    private final HistoryManager historyManager;
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Epic> epics;
-    private final Map<Integer, Subtask> subtasks;
+    protected static int tasksCount = 0;
+    protected final HistoryManager historyManager;
+    protected final Map<Integer, Task> tasks;
+    protected final Map<Integer, Epic> epics;
+    protected final Map<Integer, Subtask> subtasks;
 
     public InMemoryTaskManager() {
         this.historyManager = Managers.getDefaultHistory();
@@ -136,6 +133,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createEpic(Epic epic) {
         epic.setId(generateId());
+        epic.setStatus(TaskStatus.NEW);
         epics.put(epic.getId(), new Epic(epic));
     }
 
