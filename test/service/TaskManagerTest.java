@@ -977,7 +977,7 @@ public abstract class TaskManagerTest {
     }
 
     @Test
-    void tasksOverlap() {
+    void twoTasksNotOverlapIfFirstEndsEarlier() {
         Task firstTask = new Task(
                 "Title",
                 "Description",
@@ -989,40 +989,129 @@ public abstract class TaskManagerTest {
                 "Title",
                 "Description",
                 TaskStatus.NEW,
-                currentDate.plusMinutes(30),
+                currentDate.plusDays(1),
                 Duration.ofMinutes(60)
         );
-        Task thirdTask = new Task(
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksNotOverlapIfFirstStartsLater() {
+        Task firstTask = new Task(
                 "Title",
                 "Description",
                 TaskStatus.NEW,
                 currentDate,
                 Duration.ofMinutes(60)
         );
-        Task fourthTask = new Task(
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.minusDays(1),
+                Duration.ofMinutes(60)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfFirstTaskDurationContainsSecondTaskDuration() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(120)
+        );
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.plusMinutes(30),
+                Duration.ofMinutes(60)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfSecondTaskDurationContainsFirstTaskDuration() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(60)
+        );
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.minusMinutes(30),
+                Duration.ofMinutes(120)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfFirstTaskStartTimeEqualsSecondTaskEndTime() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(60)
+        );
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.minusMinutes(30),
+                Duration.ofMinutes(30)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfFirstTaskEndTimeEqualsSecondTaskStartTime() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(60)
+        );
+        Task secondTask = new Task(
                 "Title",
                 "Description",
                 TaskStatus.NEW,
                 currentDate.plusMinutes(60),
                 Duration.ofMinutes(60)
         );
-        Task fifthTask = new Task(
-                "Title",
-                "Description",
-                TaskStatus.NEW,
-                currentDate.plusDays(1),
-                Duration.ofMinutes(60)
-        );
+
         taskManager.createTask(firstTask);
-        taskManager.createTask(fifthTask);
-
-        assertEquals(2, taskManager.getPrioritizedTasks().size());
-
         taskManager.createTask(secondTask);
-        taskManager.createTask(thirdTask);
-        taskManager.createTask(fourthTask);
 
-        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
     }
 
     @Test
