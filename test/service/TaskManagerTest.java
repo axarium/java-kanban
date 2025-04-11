@@ -753,16 +753,19 @@ public abstract class TaskManagerTest {
         epicInManagerAfterCreate.setStartTime(currentDate.plusDays(1));
         epicInManagerAfterCreate.setDuration(Duration.ofMinutes(120));
         epicInManagerAfterCreate.setEndTime(currentDate.plusDays(1).plusMinutes(120));
-        epicInManagerAfterCreate.setId(-1);
         Epic epicInManagerAfterChanges = taskManager.getEpicById(epic.getId());
 
-        assertNotEquals(epicInManagerAfterCreate.getId(), epicInManagerAfterChanges.getId());
         assertNotEquals(epicInManagerAfterCreate.getTitle(), epicInManagerAfterChanges.getTitle());
         assertNotEquals(epicInManagerAfterCreate.getDescription(), epicInManagerAfterChanges.getDescription());
         assertNotEquals(epicInManagerAfterCreate.getStatus(), epicInManagerAfterChanges.getStatus());
         assertNotEquals(epicInManagerAfterCreate.getStartTime(), epicInManagerAfterChanges.getStartTime());
         assertNotEquals(epicInManagerAfterCreate.getEndTime(), epicInManagerAfterChanges.getEndTime());
         assertNotEquals(epicInManagerAfterCreate.getDuration(), epicInManagerAfterChanges.getDuration());
+
+        epicInManagerAfterCreate.setId(-1);
+        epicInManagerAfterChanges = taskManager.getEpicById(epic.getId());
+
+        assertNotEquals(epicInManagerAfterCreate, epicInManagerAfterChanges);
 
         List<Epic> epics = taskManager.getAllEpics();
         epics.clear();
@@ -977,7 +980,7 @@ public abstract class TaskManagerTest {
     }
 
     @Test
-    void twoTasksNotOverlapIfFirstEndsEarlier() {
+    void twoTasksNotOverlapIfFirstTaskEndsEarlierThenSecondTaskStarts() {
         Task firstTask = new Task(
                 "Title",
                 "Description",
@@ -1000,7 +1003,7 @@ public abstract class TaskManagerTest {
     }
 
     @Test
-    void twoTasksNotOverlapIfFirstStartsLater() {
+    void twoTasksNotOverlapIfFirstTaskStartsLaterThenSecondTaskEnds() {
         Task firstTask = new Task(
                 "Title",
                 "Description",
@@ -1060,6 +1063,52 @@ public abstract class TaskManagerTest {
                 TaskStatus.NEW,
                 currentDate.minusMinutes(30),
                 Duration.ofMinutes(120)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfFirstTaskEndTimeInSecondTaskDuration() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(60)
+        );
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.plusMinutes(50),
+                Duration.ofMinutes(60)
+        );
+
+        taskManager.createTask(firstTask);
+        taskManager.createTask(secondTask);
+
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+    }
+
+    @Test
+    void twoTasksOverlapIfFirstTaskStartTimeInSecondTaskDuration() {
+        Task firstTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate,
+                Duration.ofMinutes(60)
+        );
+        Task secondTask = new Task(
+                "Title",
+                "Description",
+                TaskStatus.NEW,
+                currentDate.minusMinutes(50),
+                Duration.ofMinutes(60)
         );
 
         taskManager.createTask(firstTask);
