@@ -16,7 +16,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final Path fileStorage;
-    private static final String FILE_FORMAT = "id,type,title,status,description,epicId";
+    private static final String FILE_FORMAT = "id,type,title,status,description,startTime,duration,endTime,epicId";
 
     public FileBackedTaskManager(Path fileStorage) {
         this.fileStorage = fileStorage;
@@ -41,9 +41,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void createTask(Task task) {
-        super.createTask(task);
+    public Task createTask(Task task) {
+        Task createdTask = super.createTask(task);
         save();
+        return createdTask;
     }
 
     @Override
@@ -120,22 +121,32 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
                 switch (taskType) {
                     case TaskType.TASK:
-                        fileBackedTaskManager.tasks.put(taskId, TaskConverter.taskFromCsvString(line));
+                        Task task = TaskConverter.anyTaskFromCsvString(line);
+                        fileBackedTaskManager.tasks.put(taskId, task);
+
+                        if (task.getStartTime() != null) {
+                            fileBackedTaskManager.prioritizedTasks.add(task);
+                        }
                         break;
+
                     case TaskType.EPIC:
-                        fileBackedTaskManager.epics.put(taskId, TaskConverter.epicFromCsvString(line));
+                        fileBackedTaskManager.epics.put(taskId, (Epic) TaskConverter.anyTaskFromCsvString(line));
                         break;
+
                     case TaskType.SUBTASK:
-                        int epicId = Integer.parseInt(lineElements[5]);
+                        Subtask subtask = (Subtask) TaskConverter.anyTaskFromCsvString(line);
+                        int epicId = Integer.parseInt(lineElements[8]);
                         fileBackedTaskManager.epics.get(epicId).getSubtasksIds().add(taskId);
-                        fileBackedTaskManager.subtasks.put(taskId, TaskConverter.subtaskFromCsvString(line));
+                        fileBackedTaskManager.subtasks.put(taskId, subtask);
+
+                        if (subtask.getStartTime() != null) {
+                            fileBackedTaskManager.prioritizedTasks.add(subtask);
+                        }
                         break;
                 }
             }
 
-            if (maxId > FileBackedTaskManager.tasksCount) {
-                FileBackedTaskManager.tasksCount = maxId;
-            }
+            fileBackedTaskManager.tasksCount = maxId;
 
             return fileBackedTaskManager;
         } catch (IndexOutOfBoundsException | IllegalArgumentException exception) {
@@ -155,13 +166,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             bw.write(FILE_FORMAT);
 
             for (Task task : allTasks) {
-                bw.write(String.format("\n%s", TaskConverter.taskToCsvString(task)));
+                bw.write(String.format("\n%s", TaskConverter.anyTaskToCsvString(task)));
             }
             for (Epic epic : allEpics) {
-                bw.write(String.format("\n%s", TaskConverter.epicToCsvString(epic)));
+                bw.write(String.format("\n%s", TaskConverter.anyTaskToCsvString(epic)));
             }
             for (Subtask subtask : allSubtasks) {
-                bw.write(String.format("\n%s", TaskConverter.subtaskToCsvString(subtask)));
+                bw.write(String.format("\n%s", TaskConverter.anyTaskToCsvString(subtask)));
             }
         } catch (IOException exception) {
             throw new ManagerSaveException(exception.getMessage());

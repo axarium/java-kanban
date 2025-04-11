@@ -1,5 +1,8 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -7,17 +10,22 @@ public class Task {
     private String title;
     private String description;
     private TaskStatus status;
+    private LocalDateTime startTime;
+    private Duration duration;
 
-    public Task(String title, String description, TaskStatus status) {
+    public Task(String title, String description, TaskStatus status, LocalDateTime startTime, Duration duration) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.NEW;
+        this.duration = Duration.ZERO;
     }
 
     public Task(Task task) {
@@ -25,6 +33,8 @@ public class Task {
         this.title = task.title;
         this.description = task.description;
         this.status = task.status;
+        this.startTime = task.startTime;
+        this.duration = task.duration;
     }
 
     public int getId() {
@@ -63,6 +73,26 @@ public class Task {
         return TaskType.TASK;
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        return (startTime != null && duration != null) ? startTime.plus(duration) : null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -86,9 +116,27 @@ public class Task {
         String result = "Task{id=" + id + ", title='" + title + "', ";
 
         if (description != null) {
-            result += "description.length=" + description.length();
+            result += "description.length=" + description.length() + ", ";
         } else {
-            result += "description=null";
+            result += "description=null, ";
+        }
+
+        if (startTime != null) {
+            result += "startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        } else {
+            result += "startTime=null";
+        }
+
+        if (duration != null) {
+            result += "duration=" + duration.toMinutes();
+        } else {
+            result += "duration=null";
+        }
+
+        if (getEndTime() != null) {
+            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        } else {
+            result += "endTime=null";
         }
 
         return (result + ", status=" + status + "}");
