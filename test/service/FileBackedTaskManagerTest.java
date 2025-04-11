@@ -19,16 +19,14 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest extends TaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-    private FileBackedTaskManager fileBackedTaskManager;
     private Path tempFilePath;
 
     @BeforeEach
     void createNewFileBackedTaskManager() {
         try {
             tempFilePath = Files.createTempFile("test", ".csv");
-            fileBackedTaskManager = new FileBackedTaskManager(tempFilePath);
             taskManager = new FileBackedTaskManager(tempFilePath);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -45,8 +43,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
                 Duration.ofMinutes(60)
         );
         Epic epic = new Epic("Title", "Description");
-        fileBackedTaskManager.createTask(task);
-        fileBackedTaskManager.createEpic(epic);
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
         Subtask subtask = new Subtask(
                 "Title",
                 "Description",
@@ -55,7 +53,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
                 Duration.ofMinutes(120),
                 epic.getId()
         );
-        fileBackedTaskManager.createSubtask(subtask);
+        taskManager.createSubtask(subtask);
         List<String> lines = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(tempFilePath.toString(), UTF_8))) {
@@ -105,9 +103,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
                 null
         );
         Epic epic = new Epic("Title", "Description");
-        fileBackedTaskManager.createTask(task);
-        fileBackedTaskManager.createTask(taskWithoutStartTime);
-        fileBackedTaskManager.createEpic(epic);
+        taskManager.createTask(task);
+        taskManager.createTask(taskWithoutStartTime);
+        taskManager.createEpic(epic);
         Subtask subtask = new Subtask(
                 "Title",
                 "Description",
@@ -116,11 +114,11 @@ public class FileBackedTaskManagerTest extends TaskManagerTest {
                 Duration.ofMinutes(120),
                 epic.getId()
         );
-        fileBackedTaskManager.createSubtask(subtask);
-        Task taskInManager = fileBackedTaskManager.getTaskById(task.getId());
-        Task taskWithoutStartTimeInManager = fileBackedTaskManager.getTaskById(taskWithoutStartTime.getId());
-        Epic epicInManager = fileBackedTaskManager.getEpicById(epic.getId());
-        Subtask subtaskInManager = fileBackedTaskManager.getSubtaskById(subtask.getId());
+        taskManager.createSubtask(subtask);
+        Task taskInManager = taskManager.getTaskById(task.getId());
+        Task taskWithoutStartTimeInManager = taskManager.getTaskById(taskWithoutStartTime.getId());
+        Epic epicInManager = taskManager.getEpicById(epic.getId());
+        Subtask subtaskInManager = taskManager.getSubtaskById(subtask.getId());
         FileBackedTaskManager newFileBackedTaskManager = FileBackedTaskManager.loadFromFile(tempFilePath);
 
         assertNotNull(newFileBackedTaskManager);

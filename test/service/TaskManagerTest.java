@@ -12,9 +12,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class TaskManagerTest {
+public abstract class TaskManagerTest<T extends TaskManager> {
     protected static final LocalDateTime currentDate = LocalDateTime.now();
-    protected TaskManager taskManager;
+    protected T taskManager;
 
     @Test
     void createTask() {
