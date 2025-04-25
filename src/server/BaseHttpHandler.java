@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-abstract public class BaseHttpHandler {
+public abstract class BaseHttpHandler {
     protected final TaskManager taskManager;
     protected final Gson gson;
 
