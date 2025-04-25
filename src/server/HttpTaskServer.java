@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class HttpTaskServer {
-    private final static int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 8080;
     private final HttpServer httpServer;
     private final Gson gson;
     private final TaskManager taskManager;
