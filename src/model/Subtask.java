@@ -44,23 +44,23 @@ public class Subtask extends Task {
         }
 
         if (getStartTime() != null) {
-            result += "startTime=" + getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "startTime=" + getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "startTime=null";
+            result += "startTime=null, ";
         }
 
         if (getDuration() != null) {
-            result += "duration=" + getDuration().toMinutes();
+            result += "duration=" + getDuration().toMinutes() + ", ";
         } else {
-            result += "duration=null";
+            result += "duration=null, ";
         }
 
         if (getEndTime() != null) {
-            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "endTime=null";
+            result += "endTime=null, ";
         }
 
-        return (result + ", status=" + getStatus() + ", epicId=" + epicId + "}");
+        return (result + "status=" + getStatus() + ", epicId=" + epicId + "}");
     }
 }

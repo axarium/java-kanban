@@ -2,6 +2,8 @@ package service;
 
 import exception.ManagerLoadException;
 import exception.ManagerSaveException;
+import exception.NotFoundException;
+import exception.OverlapException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -41,7 +43,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public Task createTask(Task task) {
+    public Task createTask(Task task) throws OverlapException {
         Task createdTask = super.createTask(task);
         save();
         return createdTask;
@@ -54,49 +56,49 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public Subtask createSubtask(Subtask subtask) {
+    public Subtask createSubtask(Subtask subtask) throws NotFoundException, OverlapException {
         Subtask createdSubtask = super.createSubtask(subtask);
         save();
         return createdSubtask;
     }
 
     @Override
-    public Task updateTask(Task task) {
+    public Task updateTask(Task task) throws NotFoundException, OverlapException {
         Task updatedTask = super.updateTask(task);
         save();
         return updatedTask;
     }
 
     @Override
-    public Epic updateEpic(Epic epic) {
+    public Epic updateEpic(Epic epic) throws NotFoundException {
         Epic updatedEpic = super.updateEpic(epic);
         save();
         return updatedEpic;
     }
 
     @Override
-    public Subtask updateSubtask(Subtask subtask) {
+    public Subtask updateSubtask(Subtask subtask) throws NotFoundException, OverlapException {
         Subtask updatedSubtask = super.updateSubtask(subtask);
         save();
         return updatedSubtask;
     }
 
     @Override
-    public Task removeTaskById(int id) {
+    public Task removeTaskById(int id) throws NotFoundException {
         Task task = super.removeTaskById(id);
         save();
         return task;
     }
 
     @Override
-    public Epic removeEpicById(int id) {
+    public Epic removeEpicById(int id) throws NotFoundException {
         Epic epic = super.removeEpicById(id);
         save();
         return epic;
     }
 
     @Override
-    public Subtask removeSubtaskById(int id) {
+    public Subtask removeSubtaskById(int id) throws NotFoundException {
         Subtask subtask = super.removeSubtaskById(id);
         save();
         return subtask;

@@ -122,23 +122,23 @@ public class Task {
         }
 
         if (startTime != null) {
-            result += "startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "startTime=" + startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "startTime=null";
+            result += "startTime=null, ";
         }
 
         if (duration != null) {
-            result += "duration=" + duration.toMinutes();
+            result += "duration=" + duration.toMinutes() + ", ";
         } else {
-            result += "duration=null";
+            result += "duration=null, ";
         }
 
         if (getEndTime() != null) {
-            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "endTime=null";
+            result += "endTime=null, ";
         }
 
-        return (result + ", status=" + status + "}");
+        return (result + "status=" + status + "}");
     }
 }
