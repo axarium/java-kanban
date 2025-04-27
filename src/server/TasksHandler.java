@@ -9,7 +9,6 @@ import model.Task;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class TasksHandler extends BaseHttpHandler implements HttpHandler {
@@ -26,44 +25,13 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
 
             switch (method) {
                 case "GET":
-                    if (Pattern.matches("^/tasks$", path)) {
-                        sendText(httpExchange, gson.toJson(taskManager.getAllTasks()));
-                        break;
-                    }
-
-                    if (Pattern.matches("^/tasks/\\d+$", path)) {
-                        int id = parseId(path.replace("/tasks/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.getTaskById(id)));
-                        break;
-                    }
-
-                    sendMethodNotAllowed(httpExchange);
+                    processGetRequest(httpExchange, path);
                     break;
                 case "POST":
-                    if (Pattern.matches("^/tasks$", path)) {
-                        Task task = gson.fromJson(
-                                new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8),
-                                Task.class
-                        );
-
-                        if (task.getId() == 0) {
-                            sendText(httpExchange, gson.toJson(taskManager.createTask(task)));
-                        } else {
-                            sendText(httpExchange, gson.toJson(taskManager.updateTask(task)));
-                        }
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processPostRequest(httpExchange, path);
                     break;
                 case "DELETE":
-                    if (Pattern.matches("^/tasks/\\d+$", path)) {
-                        int id = parseId(path.replace("/tasks/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.removeTaskById(id)));
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processDeleteRequest(httpExchange, path);
                     break;
                 default:
                     sendMethodNotAllowed(httpExchange);
@@ -76,6 +44,47 @@ public class TasksHandler extends BaseHttpHandler implements HttpHandler {
             sendMethodNotAllowed(httpExchange);
         } catch (IOException exception) {
             sendInternalServerError(httpExchange);
+        }
+    }
+
+    private void processGetRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/tasks$", path)) {
+            sendText(httpExchange, gson.toJson(taskManager.getAllTasks()));
+            return;
+        }
+
+        if (Pattern.matches("^/tasks/\\d+$", path)) {
+            int id = parseId(path.replace("/tasks/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.getTaskById(id)));
+            return;
+        }
+
+        sendMethodNotAllowed(httpExchange);
+    }
+
+    private void processPostRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/tasks$", path)) {
+            Task task = gson.fromJson(
+                    readJsonFromRequestBody(httpExchange),
+                    Task.class
+            );
+
+            if (task.getId() == 0) {
+                sendText(httpExchange, gson.toJson(taskManager.createTask(task)));
+            } else {
+                sendText(httpExchange, gson.toJson(taskManager.updateTask(task)));
+            }
+        } else {
+            sendMethodNotAllowed(httpExchange);
+        }
+    }
+
+    private void processDeleteRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/tasks/\\d+$", path)) {
+            int id = parseId(path.replace("/tasks/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.removeTaskById(id)));
+        } else {
+            sendMethodNotAllowed(httpExchange);
         }
     }
 }

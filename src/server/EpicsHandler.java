@@ -8,7 +8,6 @@ import model.Epic;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
@@ -25,54 +24,13 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
 
             switch (method) {
                 case "GET":
-                    if (Pattern.matches("^/epics$", path)) {
-                        sendText(httpExchange, gson.toJson(taskManager.getAllEpics()));
-                        break;
-                    }
-
-                    if (Pattern.matches("^/epics/\\d+$", path)) {
-                        int id = parseId(path.replace("/epics/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.getEpicById(id)));
-                        break;
-                    }
-
-                    if (Pattern.matches("^/epics/\\d+/subtasks$", path)) {
-                        int id = parseId(
-                                path.replace("/epics/", "")
-                                .replace("/subtasks", "")
-                        );
-                        sendText(httpExchange, gson.toJson(taskManager.getSubtasksByEpicId(id)));
-                        break;
-                    }
-
-                    sendMethodNotAllowed(httpExchange);
+                    processGetRequest(httpExchange, path);
                     break;
                 case "POST":
-                    if (Pattern.matches("^/epics$", path)) {
-                        Epic epic = gson.fromJson(
-                                new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8),
-                                Epic.class
-                        );
-
-                        if (epic.getId() == 0) {
-                            taskManager.createEpic(epic);
-                            sendResourceCreated(httpExchange);
-                        } else {
-                            sendText(httpExchange, gson.toJson(taskManager.updateEpic(epic)));
-                        }
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processPostRequest(httpExchange, path);
                     break;
                 case "DELETE":
-                    if (Pattern.matches("^/epics/\\d+$", path)) {
-                        int id = parseId(path.replace("/epics/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.removeEpicById(id)));
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processDeleteRequest(httpExchange, path);
                     break;
                 default:
                     sendMethodNotAllowed(httpExchange);
@@ -83,6 +41,57 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
             sendMethodNotAllowed(httpExchange);
         } catch (IOException exception) {
             sendInternalServerError(httpExchange);
+        }
+    }
+
+    private void processGetRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/epics$", path)) {
+            sendText(httpExchange, gson.toJson(taskManager.getAllEpics()));
+            return;
+        }
+
+        if (Pattern.matches("^/epics/\\d+$", path)) {
+            int id = parseId(path.replace("/epics/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.getEpicById(id)));
+            return;
+        }
+
+        if (Pattern.matches("^/epics/\\d+/subtasks$", path)) {
+            int id = parseId(
+                    path.replace("/epics/", "")
+                            .replace("/subtasks", "")
+            );
+            sendText(httpExchange, gson.toJson(taskManager.getSubtasksByEpicId(id)));
+            return;
+        }
+
+        sendMethodNotAllowed(httpExchange);
+    }
+
+    private void processPostRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/epics$", path)) {
+            Epic epic = gson.fromJson(
+                    readJsonFromRequestBody(httpExchange),
+                    Epic.class
+            );
+
+            if (epic.getId() == 0) {
+                taskManager.createEpic(epic);
+                sendResourceCreated(httpExchange);
+            } else {
+                sendText(httpExchange, gson.toJson(taskManager.updateEpic(epic)));
+            }
+        } else {
+            sendMethodNotAllowed(httpExchange);
+        }
+    }
+
+    private void processDeleteRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/epics/\\d+$", path)) {
+            int id = parseId(path.replace("/epics/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.removeEpicById(id)));
+        } else {
+            sendMethodNotAllowed(httpExchange);
         }
     }
 }

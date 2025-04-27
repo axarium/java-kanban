@@ -58,6 +58,10 @@ public abstract class BaseHttpHandler {
         }
     }
 
+    protected String readJsonFromRequestBody(HttpExchange httpExchange) throws IOException {
+        return new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+    }
+
     protected int parseId(String id) {
         return Integer.parseInt(id);
     }

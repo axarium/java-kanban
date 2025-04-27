@@ -9,7 +9,6 @@ import model.Subtask;
 import service.TaskManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
@@ -26,44 +25,13 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
 
             switch (method) {
                 case "GET":
-                    if (Pattern.matches("^/subtasks$", path)) {
-                        sendText(httpExchange, gson.toJson(taskManager.getAllSubtasks()));
-                        break;
-                    }
-
-                    if (Pattern.matches("^/subtasks/\\d+$", path)) {
-                        int id = parseId(path.replace("/subtasks/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.getSubtaskById(id)));
-                        break;
-                    }
-
-                    sendMethodNotAllowed(httpExchange);
+                    processGetRequest(httpExchange, path);
                     break;
                 case "POST":
-                    if (Pattern.matches("^/subtasks$", path)) {
-                        Subtask subtask = gson.fromJson(
-                                new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8),
-                                Subtask.class
-                        );
-
-                        if (subtask.getId() == 0) {
-                            sendText(httpExchange, gson.toJson(taskManager.createSubtask(subtask)));
-                        } else {
-                            sendText(httpExchange, gson.toJson(taskManager.updateSubtask(subtask)));
-                        }
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processPostRequest(httpExchange, path);
                     break;
                 case "DELETE":
-                    if (Pattern.matches("^/subtasks/\\d+$", path)) {
-                        int id = parseId(path.replace("/subtasks/", ""));
-                        sendText(httpExchange, gson.toJson(taskManager.removeSubtaskById(id)));
-                    } else {
-                        sendMethodNotAllowed(httpExchange);
-                    }
-
+                    processDeleteRequest(httpExchange, path);
                     break;
                 default:
                     sendMethodNotAllowed(httpExchange);
@@ -76,6 +44,47 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
             sendMethodNotAllowed(httpExchange);
         } catch (IOException exception) {
             sendInternalServerError(httpExchange);
+        }
+    }
+
+    private void processGetRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/subtasks$", path)) {
+            sendText(httpExchange, gson.toJson(taskManager.getAllSubtasks()));
+            return;
+        }
+
+        if (Pattern.matches("^/subtasks/\\d+$", path)) {
+            int id = parseId(path.replace("/subtasks/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.getSubtaskById(id)));
+            return;
+        }
+
+        sendMethodNotAllowed(httpExchange);
+    }
+
+    private void processPostRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/subtasks$", path)) {
+            Subtask subtask = gson.fromJson(
+                    readJsonFromRequestBody(httpExchange),
+                    Subtask.class
+            );
+
+            if (subtask.getId() == 0) {
+                sendText(httpExchange, gson.toJson(taskManager.createSubtask(subtask)));
+            } else {
+                sendText(httpExchange, gson.toJson(taskManager.updateSubtask(subtask)));
+            }
+        } else {
+            sendMethodNotAllowed(httpExchange);
+        }
+    }
+
+    private void processDeleteRequest(HttpExchange httpExchange, String path) throws IOException {
+        if (Pattern.matches("^/subtasks/\\d+$", path)) {
+            int id = parseId(path.replace("/subtasks/", ""));
+            sendText(httpExchange, gson.toJson(taskManager.removeSubtaskById(id)));
+        } else {
+            sendMethodNotAllowed(httpExchange);
         }
     }
 }
