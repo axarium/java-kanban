@@ -1,5 +1,7 @@
 package service;
 
+import exception.NotFoundException;
+import exception.OverlapException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -68,13 +70,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(taskWithoutStartTime, tasksInManager.get(1));
         assertEquals(1, prioritizedTasks.size());
 
-        Task notCreatedTask = taskManager.createTask(taskWithOverlapStartTime);
         tasksInManager = taskManager.getAllTasks();
         prioritizedTasks = taskManager.getPrioritizedTasks();
 
         assertEquals(2, tasksInManager.size());
         assertEquals(1, prioritizedTasks.size());
-        assertNull(notCreatedTask);
+        assertThrows(OverlapException.class, () -> taskManager.createTask(taskWithOverlapStartTime));
 
         task.setStartTime(currentDate.plusDays(1));
         task.setDuration(Duration.ofMinutes(120));
@@ -153,8 +154,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 null,
                 subtaskInManager.getId()
         );
-        Subtask firstNotCreatedSubtask = taskManager.createSubtask(subtaskWithoutEpicId);
-        Subtask secondNotCreatedSubtask = taskManager.createSubtask(subtaskWithOverlapStartTime);
 
         assertEquals("T", subtaskInManager.getTitle());
         assertEquals("D", subtaskInManager.getDescription());
@@ -166,8 +165,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(subtask, subtaskInManager);
         assertEquals(1, epicInManager.getSubtasksIds().size());
         assertEquals(subtaskInManager.getId(), epicInManager.getSubtasksIds().getFirst());
-        assertNull(firstNotCreatedSubtask);
-        assertNull(secondNotCreatedSubtask);
+        assertThrows(NotFoundException.class, () -> taskManager.createSubtask(subtaskWithoutEpicId));
+        assertThrows(OverlapException.class, () -> taskManager.createSubtask(subtaskWithOverlapStartTime));
 
         List<Subtask> subtasksInManager = taskManager.getAllSubtasks();
         List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
@@ -186,9 +185,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(subtaskWithoutStartTime, subtasksInManager.get(1));
         assertEquals(1, prioritizedTasks.size());
 
-        taskManager.createSubtask(subtask);
-
-        assertEquals(2, taskManager.getAllSubtasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createSubtask(subtask));
         assertNotEquals(subtask, subtaskInManager);
     }
 
@@ -232,9 +229,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, prioritizedTasks.size());
 
         thirdTask.setId(-1);
-        Task notUpdatedTask = taskManager.updateTask(thirdTask);
 
-        assertNull(notUpdatedTask);
+        assertThrows(NotFoundException.class, () -> taskManager.updateTask(thirdTask));
     }
 
     @Test
@@ -259,9 +255,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertNull(updatedEpicInManager.getEndTime());
 
         thirdEpic.setId(-1);
-        Epic notUpdatedEpic = taskManager.updateEpic(thirdEpic);
 
-        assertNull(notUpdatedEpic);
+        assertThrows(NotFoundException.class, () -> taskManager.updateEpic(thirdEpic));
     }
 
     @Test
@@ -311,9 +306,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, prioritizedTasks.size());
 
         thirdSubtask.setId(-1);
-        Subtask notUpdatedSubtask = taskManager.updateSubtask(thirdSubtask);
 
-        assertNull(notUpdatedSubtask);
+        assertThrows(NotFoundException.class, () -> taskManager.updateSubtask(thirdSubtask));
     }
 
     @Test
@@ -331,8 +325,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(task, deletedTask);
         assertTrue(prioritizedTasks.isEmpty());
-        assertNull(taskManager.getTaskById(deletedTask.getId()));
-        assertNull(taskManager.removeTaskById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(deletedTask.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.removeTaskById(-1));
     }
 
     @Test
@@ -353,9 +347,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(epic, deletedEpic);
         assertTrue(prioritizedTasks.isEmpty());
-        assertNull(taskManager.getEpicById(deletedEpic.getId()));
-        assertNull(taskManager.getSubtaskById(subtask.getId()));
-        assertNull(taskManager.removeEpicById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getEpicById(deletedEpic.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(subtask.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.removeEpicById(-1));
     }
 
     @Test
@@ -376,9 +370,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(subtask, deletedSubtask);
         assertTrue(prioritizedTasks.isEmpty());
-        assertNull(taskManager.getSubtaskById(subtask.getId()));
         assertTrue(taskManager.getEpicById(epic.getId()).getSubtasksIds().isEmpty());
-        assertNull(taskManager.removeSubtaskById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(subtask.getId()));
+        assertThrows(NotFoundException.class, () -> taskManager.removeSubtaskById(-1));
     }
 
     @Test
@@ -597,7 +591,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createTask(task);
 
         assertEquals(task, taskManager.getTaskById(task.getId()));
-        assertNull(taskManager.getTaskById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getTaskById(-1));
     }
 
     @Test
@@ -606,7 +600,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createEpic(epic);
 
         assertEquals(epic, taskManager.getEpicById(epic.getId()));
-        assertNull(taskManager.getEpicById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getEpicById(-1));
     }
 
     @Test
@@ -624,7 +618,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createSubtask(subtask);
 
         assertEquals(subtask, taskManager.getSubtaskById(subtask.getId()));
-        assertNull(taskManager.getSubtaskById(-1));
+        assertThrows(NotFoundException.class, () -> taskManager.getSubtaskById(-1));
     }
 
     @Test
@@ -1043,9 +1037,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test
@@ -1066,9 +1059,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test
@@ -1089,9 +1081,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test
@@ -1112,9 +1103,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test
@@ -1135,9 +1125,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test
@@ -1158,9 +1147,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         );
 
         taskManager.createTask(firstTask);
-        taskManager.createTask(secondTask);
 
-        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(OverlapException.class, () -> taskManager.createTask(secondTask));
     }
 
     @Test

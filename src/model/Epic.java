@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
     private LocalDateTime endTime;
-    private final List<Integer> subtasksIds;
+    private List<Integer> subtasksIds;
 
     public Epic(String title, String description) {
         super(title, description);
@@ -38,6 +38,10 @@ public class Epic extends Task {
         return subtasksIds;
     }
 
+    public void setSubtasksIds(List<Integer> subtasksIds) {
+        this.subtasksIds = subtasksIds;
+    }
+
     @Override
     public String toString() {
         String result = "Epic{id=" + getId() + ", title='" + getTitle() + "', ";
@@ -49,23 +53,23 @@ public class Epic extends Task {
         }
 
         if (getStartTime() != null) {
-            result += "startTime=" + getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "startTime=" + getStartTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "startTime=null";
+            result += "startTime=null, ";
         }
 
         if (getDuration() != null) {
-            result += "duration=" + getDuration().toMinutes();
+            result += "duration=" + getDuration().toMinutes() + ", ";
         } else {
-            result += "duration=null";
+            result += "duration=null, ";
         }
 
         if (getEndTime() != null) {
-            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            result += "endTime=" + getEndTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) + ", ";
         } else {
-            result += "endTime=null";
+            result += "endTime=null, ";
         }
 
-        return (result + ", status=" + getStatus() + ", subtasksIds=" + subtasksIds + "}");
+        return (result + "status=" + getStatus() + ", subtasksIds=" + subtasksIds + "}");
     }
 }

@@ -1,5 +1,7 @@
 package service;
 
+import exception.NotFoundException;
+import exception.OverlapException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -22,29 +24,29 @@ public interface TaskManager {
 
     void removeAllSubtasks();
 
-    Task getTaskById(int id);
+    Task getTaskById(int id) throws NotFoundException;
 
-    Epic getEpicById(int id);
+    Epic getEpicById(int id) throws NotFoundException;
 
-    Subtask getSubtaskById(int id);
+    Subtask getSubtaskById(int id) throws NotFoundException;
 
-    Task createTask(Task task);
+    Task createTask(Task task) throws OverlapException;
 
     void createEpic(Epic epic);
 
-    Subtask createSubtask(Subtask subtask);
+    Subtask createSubtask(Subtask subtask) throws NotFoundException, OverlapException;
 
-    Task updateTask(Task task);
+    Task updateTask(Task task) throws NotFoundException, OverlapException;
 
-    Epic updateEpic(Epic epic);
+    Epic updateEpic(Epic epic) throws NotFoundException;
 
-    Subtask updateSubtask(Subtask subtask);
+    Subtask updateSubtask(Subtask subtask) throws NotFoundException, OverlapException;
 
-    Task removeTaskById(int id);
+    Task removeTaskById(int id) throws NotFoundException;
 
-    Epic removeEpicById(int id);
+    Epic removeEpicById(int id) throws NotFoundException;
 
-    Subtask removeSubtaskById(int id);
+    Subtask removeSubtaskById(int id) throws NotFoundException;
 
     List<Subtask> getSubtasksByEpicId(int epicId);
 
